@@ -2,6 +2,7 @@ package miu.asd.reservationmanagement.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import miu.asd.reservationmanagement.common.RoleEnum;
 import miu.asd.reservationmanagement.common.UserStatusEnum;
@@ -27,6 +28,7 @@ public class EmployeeRequestDto {
 
     @NotBlank(message = "Phone number is required")
     @Length(min= 10, max = 15, message = "Phone number must be between 10 and 15 characters")
+    @Pattern(regexp = "\\d+", message = "Phone number must contain only digits.")
     private String phoneNumber;
 
     @Length(min= 0, max = 50, message = "Email must be within 50 characters")

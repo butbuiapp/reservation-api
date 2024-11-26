@@ -2,7 +2,7 @@ package miu.asd.reservationmanagement.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import miu.asd.reservationmanagement.common.ServiceStatusEnum;
-import miu.asd.reservationmanagement.exception.NotFoundException;
+import miu.asd.reservationmanagement.exception.ResourceNotFoundException;
 import miu.asd.reservationmanagement.exception.RecordAlreadyExistsException;
 import miu.asd.reservationmanagement.model.NailService;
 import miu.asd.reservationmanagement.repository.NailServiceRepository;
@@ -45,7 +45,7 @@ public class NailServiceServiceImpl implements NailServiceService {
                     }
                 },
                 () -> {
-                    throw new NotFoundException("Nail service not found");
+                    throw new ResourceNotFoundException("Nail service not found");
                 }
         );
     }
@@ -58,7 +58,7 @@ public class NailServiceServiceImpl implements NailServiceService {
                     nailServiceRepository.save(existingService);
                 },
                 () -> {
-                    throw new NotFoundException("Nail service not found");
+                    throw new ResourceNotFoundException("Nail service not found");
                 }
         );
     }
@@ -74,7 +74,7 @@ public class NailServiceServiceImpl implements NailServiceService {
         if (optionalNailService.isPresent()) {
             return optionalNailService.get();
         } else {
-            throw new NotFoundException("Nail service not found");
+            throw new ResourceNotFoundException("Nail service not found");
         }
     }
 

@@ -5,7 +5,6 @@ import miu.asd.reservationmanagement.common.Constant;
 import miu.asd.reservationmanagement.common.ServiceStatusEnum;
 import miu.asd.reservationmanagement.config.JwtFilterMockConfig;
 import miu.asd.reservationmanagement.config.MockUserUtils;
-import miu.asd.reservationmanagement.model.Employee;
 import miu.asd.reservationmanagement.model.NailService;
 import miu.asd.reservationmanagement.service.NailServiceService;
 import org.junit.jupiter.api.AfterEach;

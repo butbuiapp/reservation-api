@@ -7,7 +7,7 @@ import miu.asd.reservationmanagement.common.UserStatusEnum;
 import miu.asd.reservationmanagement.dto.request.AppointmentRequestDto;
 import miu.asd.reservationmanagement.dto.response.AppointmentResponseDto;
 import miu.asd.reservationmanagement.dto.request.AppointmentSearchRequestDto;
-import miu.asd.reservationmanagement.exception.NotFoundException;
+import miu.asd.reservationmanagement.exception.ResourceNotFoundException;
 import miu.asd.reservationmanagement.mapper.AppointmentMapper;
 import miu.asd.reservationmanagement.model.*;
 import miu.asd.reservationmanagement.repository.AppointmentRepository;
@@ -15,7 +15,6 @@ import miu.asd.reservationmanagement.repository.CustomerRepository;
 import miu.asd.reservationmanagement.repository.EmployeeRepository;
 import miu.asd.reservationmanagement.repository.LoyaltyPointRepository;
 import miu.asd.reservationmanagement.service.AppointmentService;
-import miu.asd.reservationmanagement.service.CustomerService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +40,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         // get customer by phone
         Customer customer = customerRepository.findByPhoneNumberAndStatus(
                 appointmentRequestDto.getCustomer().getPhoneNumber(),
-                UserStatusEnum.ACTIVE).orElseThrow(() -> new NotFoundException("Customer not found"));
+                UserStatusEnum.ACTIVE).orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
         appointment.setCustomer(customer);
 
         // Save invoice if present
@@ -61,7 +60,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         existingAppointment.setDate(appointmentRequestDto.getDate());
         existingAppointment.setTime(appointmentRequestDto.getTime());
         Employee employee = employeeRepository.findById(appointmentRequestDto.getTechnician().getId()).
-                orElseThrow(() -> new NotFoundException("Technician not found"));
+                orElseThrow(() -> new ResourceNotFoundException("Technician not found"));
         existingAppointment.setTechnician(employee);
         existingAppointment.setNotes(appointmentRequestDto.getNotes());
 
@@ -140,7 +139,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         if (optionalAppointment.isPresent()) {
             return optionalAppointment.get();
         } else {
-            throw new NotFoundException("Appointment not found");
+            throw new ResourceNotFoundException("Appointment not found");
         }
     }
 }

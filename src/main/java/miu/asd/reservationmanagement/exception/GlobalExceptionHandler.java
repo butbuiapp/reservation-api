@@ -16,14 +16,14 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = {NotFoundException.class})
-    public ResponseEntity<?> handleNotFoundException(NotFoundException ex) {
+    @ExceptionHandler(value = {ResourceNotFoundException.class})
+    public ResponseEntity<?> handleNotFoundException(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
     @ExceptionHandler(value = {RecordAlreadyExistsException.class})
     public ResponseEntity<?> handleRecordAlreadyExistsException(RecordAlreadyExistsException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
