@@ -21,14 +21,14 @@ public class NailServiceController {
 
     @PostMapping
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> createService(@Valid @RequestBody NailService nailService) {
+    public ResponseEntity<NailService> createService(@Valid @RequestBody NailService nailService) {
         NailService createdService = nailServiceService.saveService(nailService);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdService);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> updateService(@PathVariable Integer id,
+    public ResponseEntity<Map<String, String>> updateService(@PathVariable Integer id,
                                            @Valid @RequestBody NailService nailService) {
         nailServiceService.updateService(id, nailService);
         return ResponseEntity.ok().body(Map.of("message", "Nail service updated successfully"));
@@ -36,21 +36,21 @@ public class NailServiceController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('MANAGER', 'CUSTOMER')")
-    public ResponseEntity<?> getAllServices() {
+    public ResponseEntity<List<NailService>> getAllServices() {
         List<NailService> services = nailServiceService.getAllServices();
         return ResponseEntity.ok().body(services);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> getServiceById(@PathVariable Integer id) {
+    public ResponseEntity<NailService> getServiceById(@PathVariable Integer id) {
         NailService nailService = nailServiceService.getServiceById(id);
         return ResponseEntity.ok().body(nailService);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> deleteService(@PathVariable Integer id) {
+    public ResponseEntity<Map<String, String>> deleteService(@PathVariable Integer id) {
         nailServiceService.deleteServiceById(id);
         return ResponseEntity.ok().body(Map.of("message", "Nail service deleted successfully"));
     }

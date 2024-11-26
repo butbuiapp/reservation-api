@@ -44,10 +44,9 @@ class CustomerControllerTest {
                 .phoneNumber("1111111111")
                 .password("1111111111")
                 .build();
-        ResponseEntity<?> response = customerController.createCustomer(customerRequestDto);
+        ResponseEntity<Map<String, String>> response = customerController.createCustomer(customerRequestDto);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("Customer created successfully",
-                ((Map<String, String>)response.getBody()).get("message"));
+        assertEquals("Customer created successfully", response.getBody().get("message"));
     }
 
     @Test
@@ -58,10 +57,9 @@ class CustomerControllerTest {
                 .phoneNumber("1111111111")
                 .password("1111111111")
                 .build();
-        ResponseEntity<?> response = customerController.updateCustomer(1L, customerRequestDto);
+        ResponseEntity<Map<String, String>> response = customerController.updateCustomer(1L, customerRequestDto);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Customer updated successfully",
-                ((Map<String, String>)response.getBody()).get("message"));
+        assertEquals("Customer updated successfully", response.getBody().get("message"));
     }
 
     @Test
@@ -83,7 +81,7 @@ class CustomerControllerTest {
 
         Mockito.when(customerService.getActiveCustomers()).thenReturn(customerResponseDtos);
 
-        ResponseEntity<?> response = customerController.getActiveCustomers();
+        ResponseEntity<List<CustomerResponseDto>> response = customerController.getActiveCustomers();
         assert response.getStatusCode() == HttpStatus.OK;
         assert response.getBody().equals(customerResponseDtos);
     }
@@ -99,7 +97,7 @@ class CustomerControllerTest {
 
         Mockito.when(customerService.getCustomerById(Mockito.anyLong())).thenReturn(customerResponseDto);
 
-        ResponseEntity<?> response = customerController.getCustomerById(Mockito.anyLong());
+        ResponseEntity<CustomerResponseDto> response = customerController.getCustomerById(Mockito.anyLong());
         assert response.getStatusCode() == HttpStatus.OK;
         assert response.getBody().equals(customerResponseDto);
     }
@@ -115,14 +113,14 @@ class CustomerControllerTest {
 
         Mockito.when(customerService.getCustomerByPhone(Mockito.anyString())).thenReturn(customerResponseDto);
 
-        ResponseEntity<?> response = customerController.getCustomerByPhone(Mockito.anyString());
+        ResponseEntity<CustomerResponseDto> response = customerController.getCustomerByPhone(Mockito.anyString());
         assert response.getStatusCode() == HttpStatus.OK;
         assert response.getBody().equals(customerResponseDto);
     }
 
     @Test
     void testDeleteCustomer() {
-        ResponseEntity<?> response = customerController.deleteCustomer(Mockito.anyLong());
+        ResponseEntity<Map<String, String>> response = customerController.deleteCustomer(Mockito.anyLong());
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Customer deleted successfully",
                 ((Map<String, String>)response.getBody()).get("message"));
@@ -137,7 +135,7 @@ class CustomerControllerTest {
                         .newPassword("11111112")
                         .confirmPassword("11111112")
                         .build();
-        ResponseEntity<?> response = customerController.changePasswordByPhone(
+        ResponseEntity<Map<String, String>> response = customerController.changePasswordByPhone(
                                "1234567890",
                                             changePasswordRequestDto);
         assertEquals(HttpStatus.OK, response.getStatusCode());
