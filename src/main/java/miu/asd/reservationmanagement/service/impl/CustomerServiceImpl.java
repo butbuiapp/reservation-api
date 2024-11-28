@@ -47,6 +47,7 @@ public class CustomerServiceImpl implements CustomerService {
             throw new ResourceNotFoundException("Role not found for CUSTOMER");
         }
         customer.setRole(optionalRole.get());
+        // encode password
         customer.setPassword(passwordEncoder.encode(customerRequestDto.getPassword()));
         customerRepository.save(customer);
     }

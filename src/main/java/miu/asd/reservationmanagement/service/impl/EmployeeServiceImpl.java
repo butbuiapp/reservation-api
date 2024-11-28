@@ -40,14 +40,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         // map dto to entity
         Employee employee = EmployeeMapper.MAPPER.dtoToEntity(employeeRequestDto);
         employee.setStatus(UserStatusEnum.ACTIVE);
-        // encode password
-        employee.setPassword(passwordEncoder.encode(employeeRequestDto.getPassword()));
         // get role
         Optional<Role> optionalRole = roleRepository.findByRole(employeeRequestDto.getRole());
         if (!optionalRole.isPresent()) {
             throw new ResourceNotFoundException("Role not found for EMPLOYEE");
         }
         employee.setRole(optionalRole.get());
+        // encode password
+        employee.setPassword(passwordEncoder.encode(employeeRequestDto.getPassword()));
         employeeRepository.save(employee);
     }
 
@@ -87,11 +87,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void deleteEmployeeById(Long id) {
         Optional<Employee> optionalEmployee = findById(id);
-        if (optionalEmployee.isPresent()) {
-            Employee employee = optionalEmployee.get();
-            employee.setStatus(UserStatusEnum.DELETED);
-            employeeRepository.save(employee);
-        }
+        Employee employee = optionalEmployee.get();
+        employee.setStatus(UserStatusEnum.DELETED);
+        employeeRepository.save(employee);
     }
 
     @Override
