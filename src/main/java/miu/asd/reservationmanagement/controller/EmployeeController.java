@@ -58,7 +58,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/change-password/{id}")
-    @PreAuthorize("hasRole('TECHNICIAN')")
+    @PreAuthorize("hasAnyRole('MANAGER', 'TECHNICIAN')")
     public ResponseEntity<Map<String, String>> changePassword(
             @PathVariable Long id,
             @Valid @RequestBody ChangePasswordRequestDto changePasswordRequestDto) {

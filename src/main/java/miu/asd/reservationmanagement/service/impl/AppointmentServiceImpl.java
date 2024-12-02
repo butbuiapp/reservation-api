@@ -5,19 +5,17 @@ import miu.asd.reservationmanagement.common.AppointmentStatusEnum;
 import miu.asd.reservationmanagement.common.InvoiceStatusEnum;
 import miu.asd.reservationmanagement.common.UserStatusEnum;
 import miu.asd.reservationmanagement.dto.request.AppointmentRequestDto;
-import miu.asd.reservationmanagement.dto.response.AppointmentResponseDto;
 import miu.asd.reservationmanagement.dto.request.AppointmentSearchRequestDto;
+import miu.asd.reservationmanagement.dto.response.AppointmentResponseDto;
 import miu.asd.reservationmanagement.exception.ResourceNotFoundException;
 import miu.asd.reservationmanagement.mapper.AppointmentMapper;
 import miu.asd.reservationmanagement.model.*;
-import miu.asd.reservationmanagement.repository.AppointmentRepository;
-import miu.asd.reservationmanagement.repository.CustomerRepository;
-import miu.asd.reservationmanagement.repository.EmployeeRepository;
-import miu.asd.reservationmanagement.repository.LoyaltyPointRepository;
+import miu.asd.reservationmanagement.repository.*;
 import miu.asd.reservationmanagement.service.AppointmentService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,6 +27,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final CustomerRepository customerRepository;
     private final EmployeeRepository employeeRepository;
     private final LoyaltyPointRepository loyaltyPointRepository;
+    private final NailServiceRepository nailServiceRepository;
 
     @Override
     @Transactional
@@ -54,18 +53,36 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public void updateAppointment(Long id, AppointmentRequestDto appointmentRequestDto) {
-        Appointment appointment = AppointmentMapper.MAPPER.dtoToEntity(appointmentRequestDto);
-
         Appointment existingAppointment = findById(id);
         existingAppointment.setDate(appointmentRequestDto.getDate());
         existingAppointment.setTime(appointmentRequestDto.getTime());
+        // get employee
         Employee employee = employeeRepository.findById(appointmentRequestDto.getTechnician().getId()).
                 orElseThrow(() -> new ResourceNotFoundException("Technician not found"));
         existingAppointment.setTechnician(employee);
         existingAppointment.setNotes(appointmentRequestDto.getNotes());
 
         // update service
-        existingAppointment.setInvoice(appointment.getInvoice());
+        if (appointmentRequestDto.getInvoice() == null) {
+            if (existingAppointment.getInvoice() != null) {
+                existingAppointment.getInvoice().getServices().clear();
+            }
+        } else {
+
+            // get list of service Ids
+            List<Integer> serviceIds = appointmentRequestDto.getInvoice().getServices().stream()
+                    .map(s -> s.getId()).toList();
+            List<NailService> services = nailServiceRepository.findAllById(serviceIds);
+
+            Invoice existingInvoice = existingAppointment.getInvoice();
+            if (existingInvoice == null) existingInvoice = new Invoice();
+            existingInvoice.setServices(services);
+            existingInvoice.setStatus(InvoiceStatusEnum.DRAFT);
+            existingInvoice.setTotalAmount(appointmentRequestDto.getInvoice().getTotalAmount());
+            existingInvoice.setIssuedDate(appointmentRequestDto.getInvoice().getIssuedDate());
+            existingAppointment.setInvoice(existingInvoice);
+
+        }
         appointmentRepository.save(existingAppointment);
     }
 
@@ -80,7 +97,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Transactional
     public void completeAppointment(Long id) {
         Appointment appointment = findById(id);
+        // update appointment status
         appointment.setStatus(AppointmentStatusEnum.DONE);
+        // update invoice status
+        if (appointment.getInvoice() != null) {
+            appointment.getInvoice().setStatus(InvoiceStatusEnum.PAID);
+            appointment.getInvoice().setPaidDate(LocalDateTime.now());
+        }
         appointmentRepository.save(appointment);
 
         // update earned point

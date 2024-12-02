@@ -163,7 +163,7 @@
 			</plugin>
 
 		</plugins>
-		<finalName>reservation-management-1.0.1</finalName>
+		<finalName>nail-shop-api-1.0.1</finalName>
 	</build>
 
 </project>
