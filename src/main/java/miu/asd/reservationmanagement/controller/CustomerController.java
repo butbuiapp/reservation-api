@@ -21,14 +21,15 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @PostMapping("register")
-    public ResponseEntity<Map<String, String>> createCustomer(@Valid @RequestBody CustomerRequestDto customerRequestDto) {
+    public ResponseEntity<Map<String, String>> createCustomer(@Valid
+                                                                  @RequestBody CustomerRequestDto customerRequestDto) {
         customerService.saveCustomer(customerRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Customer created successfully"));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<?> updateCustomer(@PathVariable Long id,
+    public ResponseEntity<Map<String, String>> updateCustomer(@PathVariable Long id,
                                             @Valid @RequestBody CustomerRequestDto customerRequestDto) {
         customerService.updateCustomer(id, customerRequestDto);
         return ResponseEntity.ok().body(Map.of("message", "Customer updated successfully"));
@@ -36,35 +37,35 @@ public class CustomerController {
 
     @GetMapping
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> getActiveCustomers() {
+    public ResponseEntity<List<CustomerResponseDto>> getActiveCustomers() {
         List<CustomerResponseDto> customers = customerService.getActiveCustomers();
         return ResponseEntity.ok().body(customers);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER', 'CUSTOMER')")
-    public ResponseEntity<?> getCustomerById(@PathVariable Long id) {
+    public ResponseEntity<CustomerResponseDto> getCustomerById(@PathVariable Long id) {
         CustomerResponseDto customerDto = customerService.getCustomerById(id);
         return ResponseEntity.ok().body(customerDto);
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'CUSTOMER')")
     @GetMapping("search/{phoneNumber}")
-    public ResponseEntity<?> getCustomerByPhone(@PathVariable String phoneNumber) {
+    public ResponseEntity<CustomerResponseDto> getCustomerByPhone(@PathVariable String phoneNumber) {
         CustomerResponseDto customerDto = customerService.getCustomerByPhone(phoneNumber);
         return ResponseEntity.ok().body(customerDto);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> deleteCustomer(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteCustomer(@PathVariable Long id) {
         customerService.deleteCustomerById(id);
         return ResponseEntity.ok().body(Map.of("message", "Customer deleted successfully"));
     }
 
     @PutMapping("/change-password/{phoneNumber}")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<?> changePasswordByPhone(
+    public ResponseEntity<Map<String, String>> changePasswordByPhone(
             @PathVariable String phoneNumber,
             @Valid @RequestBody ChangePasswordRequestDto changePasswordRequestDto) {
         customerService.changePassword(phoneNumber, changePasswordRequestDto);

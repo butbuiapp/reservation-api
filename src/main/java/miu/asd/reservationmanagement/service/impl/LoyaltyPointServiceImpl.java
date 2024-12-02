@@ -2,7 +2,6 @@ package miu.asd.reservationmanagement.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import miu.asd.reservationmanagement.common.UserStatusEnum;
-import miu.asd.reservationmanagement.exception.NotFoundException;
 import miu.asd.reservationmanagement.model.Customer;
 import miu.asd.reservationmanagement.model.LoyaltyPoint;
 import miu.asd.reservationmanagement.repository.CustomerRepository;

@@ -58,13 +58,13 @@ public class SetupInitialData implements ApplicationListener<ContextRefreshedEve
     }
 
     private Role createRoleIfNotFound(final RoleEnum roleEnum) {
-        Role role = roleRepository.findByRole(roleEnum);
-        if (role == null) {
+        Optional<Role> optionalRole = roleRepository.findByRole(roleEnum);
+        if (optionalRole.isEmpty()) {
             Role r = new Role();
             r.setRole(roleEnum);
-            role = roleRepository.save(r);
+            return roleRepository.save(r);
         }
-        return role;
+        return optionalRole.get();
     }
 
     @Override

@@ -1,112 +1,110 @@
 package miu.asd.reservationmanagement.controller;
 
-import com.google.gson.Gson;
-import miu.asd.reservationmanagement.common.Constant;
-import miu.asd.reservationmanagement.common.ServiceStatusEnum;
-import miu.asd.reservationmanagement.config.JwtFilterMockConfig;
-import miu.asd.reservationmanagement.config.MockUserUtils;
-import miu.asd.reservationmanagement.model.Employee;
 import miu.asd.reservationmanagement.model.NailService;
 import miu.asd.reservationmanagement.service.NailServiceService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-@SpringBootTest(classes = {JwtFilterMockConfig.class})
-@AutoConfigureMockMvc
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@ExtendWith(MockitoExtension.class)
 class NailServiceControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
-    @MockBean
+    @Mock
     private NailServiceService nailServiceService;
-    @MockBean
-    private PasswordEncoder passwordEncoder;
-    @MockBean
-    private UserDetailsService userDetailsService;
-    @MockBean
-    private SecurityFilterChain securityFilterChain;
-    @MockBean
-    private AuthenticationProvider authenticationProvider;
-
-    @BeforeEach
-    void setUp() {
-        UserDetails userDetails = MockUserUtils.getMockManager();
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        Mockito.when(passwordEncoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
-        Mockito.when(userDetailsService.loadUserByUsername(Mockito.anyString())).thenReturn(userDetails);
-        Mockito.when(securityFilterChain.matches(Mockito.any())).thenReturn(true);
-        Mockito.when(authenticationProvider.authenticate(Mockito.any(UsernamePasswordAuthenticationToken.class))).
-                thenReturn(authentication);
-    }
-
-    @AfterEach
-    void tearDown() {
-    }
+    @InjectMocks
+    private NailServiceController nailServiceController;
 
     @Test
-    void testCreateService_created() throws Exception {
-        // input
-        NailService input = NailService.builder()
-                .name("Manicure")
-                .price(20d)
-                .duration(30)
-                .description("Nail treatment")
+    void createService() {
+        // Arrange
+        NailService nailService = NailService.builder()
+                .name("Gel").price(30d).duration(50).description("Nail Gel")
                 .build();
 
-        // output
-        NailService expected = NailService.builder()
-                .id(1)
-                .name("Manicure")
-                .price(20d)
-                .duration(30)
-                .description("Nail treatment")
-                .status(ServiceStatusEnum.ACTIVE)
+        NailService createdNailService = NailService.builder()
+                .id(1).name("Gel").price(30d).duration(50).description("Nail Gel")
                 .build();
-        // mock
-        Mockito.when(nailServiceService.saveService(input)).thenReturn(expected);
 
-        mockMvc.perform(
-                MockMvcRequestBuilders.post(Constant.SERVICE_URL)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new Gson().toJson(input)))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.content().json(new Gson().toJson(expected)));
+        Mockito.when(nailServiceService.saveService(nailService)).thenReturn(createdNailService);
 
+        // Act
+        ResponseEntity<NailService> response = nailServiceController.createService(nailService);
+
+        // Assert
+        assert response.getStatusCode() == HttpStatus.CREATED;
+        assert response.getBody().equals(createdNailService);
     }
 
     @Test
     void updateService() {
+        // Arrange
+        NailService nailService = NailService.builder()
+                .name("Gel").price(30d).duration(50).description("Nail Gel")
+                .build();
+
+        // Act
+        ResponseEntity<Map<String, String>> response = nailServiceController.updateService(1, nailService);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Nail service updated successfully", response.getBody().get("message"));
     }
 
     @Test
     void getAllServices() {
+        // Arrange
+        NailService nailService1 = NailService.builder()
+                .name("Gel").price(30d).duration(50).description("Nail Gel")
+                .build();
+        NailService nailService2 = NailService.builder()
+                .name("Manicure").price(25d).duration(60).description("Manicure service")
+                .build();
+        List<NailService> nailServices = Arrays.asList(nailService1, nailService2);
+        Mockito.when(nailServiceService.getAllServices()).thenReturn(nailServices);
+
+        // Act
+        ResponseEntity<List<NailService>> response = nailServiceController.getAllServices();
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(nailServices, response.getBody());
     }
 
     @Test
     void getServiceById() {
+        // Arrange
+        Integer id = 1;
+        NailService nailService = NailService.builder()
+                .id(id)
+                .name("Manicure").price(25d).duration(60).description("Manicure service")
+                .build();
+        Mockito.when(nailServiceService.getServiceById(id)).thenReturn(nailService);
+
+        // Act
+        ResponseEntity<NailService> response = nailServiceController.getServiceById(id);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(nailService, response.getBody());
     }
 
     @Test
     void deleteService() {
+        // Act
+        ResponseEntity<Map<String, String>> response = nailServiceController.deleteService(1);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Nail service deleted successfully", response.getBody().get("message"));
     }
 }

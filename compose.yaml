@@ -1,0 +1,35 @@
+services:
+  mysql:
+    container_name: mysqldb
+    image: 'mysql:8.0.34'
+    environment:
+      - 'MYSQL_DATABASE=nail-shop'
+      - 'MYSQL_ROOT_PASSWORD=bnbroot3'
+    ports:
+      - '3307:3306'
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s #The health check runs every 10 seconds.
+      timeout: 5s #Each health check must complete within 5 seconds.
+      retries: 3 #Docker will retry the health check 3 times before marking the service as unhealthy.
+      start_period: 10s #This is a delay (10 seconds) after container startup before Docker begins checking the service health, giving MySQL some time to initialize.
+
+  web:
+    image: 'butbui86/nail-shop-api:1.0.1'
+    build:
+      # Uses the current directory as the build context,
+      # making all files in this directory available during the build process.
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8080"
+    depends_on:
+      mysql:
+        # Waits for the service to pass its health checks, ensuring it is fully operational.
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nail-shop
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: bnbroot3
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.MySQLDialect

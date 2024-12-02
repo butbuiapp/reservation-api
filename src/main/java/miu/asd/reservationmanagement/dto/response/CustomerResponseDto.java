@@ -1,5 +1,6 @@
 package miu.asd.reservationmanagement.dto.response;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import miu.asd.reservationmanagement.common.UserStatusEnum;
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
+@Builder
 public class CustomerResponseDto {
     private Long id;
     private String firstName;

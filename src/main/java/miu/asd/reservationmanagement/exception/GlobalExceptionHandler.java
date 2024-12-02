@@ -16,30 +16,30 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = {NotFoundException.class})
-    public ResponseEntity<?> handleNotFoundException(NotFoundException ex) {
+    @ExceptionHandler(value = {ResourceNotFoundException.class})
+    public ResponseEntity<String> handleNotFoundException(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
     @ExceptionHandler(value = {RecordAlreadyExistsException.class})
-    public ResponseEntity<?> handleRecordAlreadyExistsException(RecordAlreadyExistsException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+    public ResponseEntity<String> handleRecordAlreadyExistsException(RecordAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<?> handleHttpRequestMethodNotSupportedException(RecordAlreadyExistsException ex) {
+    public ResponseEntity<String> handleHttpRequestMethodNotSupportedException(RecordAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(ex.getMessage());
     }
 
     // change password
     @ExceptionHandler(InvalidPasswordException.class)
-    public ResponseEntity<?> handleInvalidPasswordException(InvalidPasswordException ex) {
+    public ResponseEntity<String> handleInvalidPasswordException(InvalidPasswordException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     // authentication fails
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<?> handleBadCredentialsException(BadCredentialsException ex) {
+    public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid phone number or password");
     }
 

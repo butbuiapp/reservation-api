@@ -23,7 +23,7 @@ public class AppointmentController {
 
     @PostMapping
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<?> createAppointment(
+    public ResponseEntity<Map<String, String>> createAppointment(
             @Valid @RequestBody AppointmentRequestDto appointmentRequestDto) {
         appointmentService.saveAppointment(appointmentRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -32,7 +32,7 @@ public class AppointmentController {
 
     @PutMapping("{appointmentId}")
     @PreAuthorize("hasAnyRole('CUSTOMER', 'MANAGER')")
-    public ResponseEntity<?> updateAppointment(@PathVariable Long appointmentId,
+    public ResponseEntity<Map<String, String>> updateAppointment(@PathVariable Long appointmentId,
                                                @Valid @RequestBody AppointmentRequestDto appointmentRequestDto) {
         appointmentService.updateAppointment(appointmentId, appointmentRequestDto);
         return ResponseEntity.ok().body(Map.of("message", "Appointment updated successfully"));
@@ -40,14 +40,14 @@ public class AppointmentController {
 
     @GetMapping("/customer/{customerId}")
     @PreAuthorize("hasAnyRole('CUSTOMER', 'MANAGER')")
-    public ResponseEntity<?> getAppointmentsByCustomerId(@PathVariable Long customerId) {
+    public ResponseEntity<List<AppointmentResponseDto>> getAppointmentsByCustomerId(@PathVariable Long customerId) {
         List<AppointmentResponseDto> appointmentResponseDtos = appointmentService.getAppointmentsByCustomerId(customerId);
         return ResponseEntity.ok().body(appointmentResponseDtos);
     }
 
     @GetMapping("/customer/phone/{phoneNumber}")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<?> getAppointmentsByCustomerPhone(@PathVariable String phoneNumber) {
+    public ResponseEntity<List<AppointmentResponseDto>> getAppointmentsByCustomerPhone(@PathVariable String phoneNumber) {
         List<AppointmentResponseDto> appointmentResponseDtos =
                 appointmentService.getAppointmentsByCustomerPhone(phoneNumber);
         return ResponseEntity.ok().body(appointmentResponseDtos);
@@ -55,7 +55,8 @@ public class AppointmentController {
 
     @PostMapping("/search")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> getAppointmentsByDate(@RequestBody AppointmentSearchRequestDto searchRequestDto) {
+    public ResponseEntity<List<AppointmentResponseDto>> getAppointmentsByDate(
+            @RequestBody AppointmentSearchRequestDto searchRequestDto) {
         List<AppointmentResponseDto> appointmentResponseDtos =
                 appointmentService.searchAppointment(searchRequestDto);
         return ResponseEntity.ok().body(appointmentResponseDtos);
@@ -63,20 +64,20 @@ public class AppointmentController {
 
     @GetMapping("/{appointmentId}/cancel")
     @PreAuthorize("hasAnyRole('CUSTOMER', 'MANAGER')")
-    public ResponseEntity<?> cancelAppointment(@PathVariable Long appointmentId) {
+    public ResponseEntity<Map<String, String>> cancelAppointment(@PathVariable Long appointmentId) {
         appointmentService.cancelAppointment(appointmentId);
         return ResponseEntity.ok().body(Map.of("message", "Appointment cancelled successfully"));
     }
 
     @GetMapping("/{appointmentId}")
     @PreAuthorize("hasAnyRole('CUSTOMER', 'MANAGER')")
-    public ResponseEntity<?> getAppointmentById(@PathVariable Long appointmentId) {
+    public ResponseEntity<AppointmentResponseDto> getAppointmentById(@PathVariable Long appointmentId) {
         return ResponseEntity.ok().body(appointmentService.getAppointmentById(appointmentId));
     }
 
     @GetMapping("/{appointmentId}/complete")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> completeAppointment(@PathVariable Long appointmentId) {
+    public ResponseEntity<Map<String, String>> completeAppointment(@PathVariable Long appointmentId) {
         appointmentService.completeAppointment(appointmentId);
         return ResponseEntity.ok().body(Map.of("message", "Appointment completed successfully"));
     }

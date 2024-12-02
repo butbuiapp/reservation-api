@@ -20,13 +20,13 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/admin/login")
-    public ResponseEntity<?> loginAdmin(@Valid @RequestBody LoginRequestDto req) {
-        LoginResponseDto loginResponseDto = authService.login(RoleEnum.TECHNICIAN, req);
+    public ResponseEntity<LoginResponseDto> loginAdmin(@Valid @RequestBody LoginRequestDto req) {
+        LoginResponseDto loginResponseDto = authService.login(RoleEnum.MANAGER, req);
         return ResponseEntity.ok(loginResponseDto);
     }
 
     @PostMapping("/customer/login")
-    public ResponseEntity<?> loginCustomer(@Valid @RequestBody LoginRequestDto req) {
+    public ResponseEntity<LoginResponseDto> loginCustomer(@Valid @RequestBody LoginRequestDto req) {
         LoginResponseDto loginResponseDto = authService.login(RoleEnum.CUSTOMER, req);
         return ResponseEntity.ok(loginResponseDto);
     }

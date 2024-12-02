@@ -2,12 +2,11 @@ package miu.asd.reservationmanagement.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import miu.asd.reservationmanagement.common.UserStatusEnum;
-import miu.asd.reservationmanagement.config.ApplicationConfig;
 import miu.asd.reservationmanagement.dto.request.ChangePasswordRequestDto;
 import miu.asd.reservationmanagement.dto.request.EmployeeRequestDto;
 import miu.asd.reservationmanagement.dto.response.EmployeeResponseDto;
 import miu.asd.reservationmanagement.exception.InvalidPasswordException;
-import miu.asd.reservationmanagement.exception.NotFoundException;
+import miu.asd.reservationmanagement.exception.ResourceNotFoundException;
 import miu.asd.reservationmanagement.exception.RecordAlreadyExistsException;
 import miu.asd.reservationmanagement.mapper.EmployeeMapper;
 import miu.asd.reservationmanagement.model.Employee;
@@ -41,11 +40,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         // map dto to entity
         Employee employee = EmployeeMapper.MAPPER.dtoToEntity(employeeRequestDto);
         employee.setStatus(UserStatusEnum.ACTIVE);
+        // get role
+        Optional<Role> optionalRole = roleRepository.findByRole(employeeRequestDto.getRole());
+        if (!optionalRole.isPresent()) {
+            throw new ResourceNotFoundException("Role not found for EMPLOYEE");
+        }
+        employee.setRole(optionalRole.get());
         // encode password
         employee.setPassword(passwordEncoder.encode(employeeRequestDto.getPassword()));
-        // get role
-        Role role = roleRepository.findByRole(employeeRequestDto.getRole());
-        employee.setRole(role);
         employeeRepository.save(employee);
     }
 
@@ -71,8 +73,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                 existingEmployee.setPhoneNumber(employeeRequestDto.getPhoneNumber());
                 if (!existingEmployee.getRole().getRole().equals(employeeRequestDto.getRole())) {
                     // get role
-                    Role role = roleRepository.findByRole(employeeRequestDto.getRole());
-                    existingEmployee.setRole(role);
+                    Optional<Role> optionalRole = roleRepository.findByRole(employeeRequestDto.getRole());
+                    if (!optionalRole.isPresent()) {
+                        throw new ResourceNotFoundException("Role not found for EMPLOYEE");
+                    }
+                    existingEmployee.setRole(optionalRole.get());
                 }
                 employeeRepository.save(existingEmployee);
             }
@@ -82,11 +87,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void deleteEmployeeById(Long id) {
         Optional<Employee> optionalEmployee = findById(id);
-        if (optionalEmployee.isPresent()) {
-            Employee employee = optionalEmployee.get();
-            employee.setStatus(UserStatusEnum.DELETED);
-            employeeRepository.save(employee);
-        }
+        Employee employee = optionalEmployee.get();
+        employee.setStatus(UserStatusEnum.DELETED);
+        employeeRepository.save(employee);
     }
 
     @Override
@@ -129,6 +132,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (optionalEmployee.isPresent()) {
             return optionalEmployee;
         }
-        throw new NotFoundException("Employee not found");
+        throw new ResourceNotFoundException("Employee not found");
     }
 }

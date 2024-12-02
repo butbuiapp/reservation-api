@@ -3,13 +3,12 @@ package miu.asd.reservationmanagement.service.impl;
 import lombok.RequiredArgsConstructor;
 import miu.asd.reservationmanagement.common.RoleEnum;
 import miu.asd.reservationmanagement.common.UserStatusEnum;
-import miu.asd.reservationmanagement.config.ApplicationConfig;
 import miu.asd.reservationmanagement.dto.request.ChangePasswordRequestDto;
 import miu.asd.reservationmanagement.dto.request.CustomerRequestDto;
 import miu.asd.reservationmanagement.dto.response.CustomerResponseDto;
 import miu.asd.reservationmanagement.exception.InvalidPasswordException;
-import miu.asd.reservationmanagement.exception.NotFoundException;
 import miu.asd.reservationmanagement.exception.RecordAlreadyExistsException;
+import miu.asd.reservationmanagement.exception.ResourceNotFoundException;
 import miu.asd.reservationmanagement.mapper.CustomerMapper;
 import miu.asd.reservationmanagement.model.Customer;
 import miu.asd.reservationmanagement.model.Role;
@@ -43,8 +42,12 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = CustomerMapper.MAPPER.dtoToEntity(customerRequestDto);
         customer.setStatus(UserStatusEnum.ACTIVE);
         // get role
-        Role role = roleRepository.findByRole(RoleEnum.CUSTOMER);
-        customer.setRole(role);
+        Optional<Role> optionalRole = roleRepository.findByRole(RoleEnum.CUSTOMER);
+        if (!optionalRole.isPresent()) {
+            throw new ResourceNotFoundException("Role not found for CUSTOMER");
+        }
+        customer.setRole(optionalRole.get());
+        // encode password
         customer.setPassword(passwordEncoder.encode(customerRequestDto.getPassword()));
         customerRepository.save(customer);
     }
@@ -72,20 +75,16 @@ public class CustomerServiceImpl implements CustomerService {
                 customerRepository.save(existingCustomer);
             }
         } else {
-            throw new NotFoundException("Customer not found");
+            throw new ResourceNotFoundException("Customer not found");
         }
     }
 
     @Override
     public void deleteCustomerById(Long id) {
         Optional<Customer> optionalCustomer = findById(id);
-        if (optionalCustomer.isPresent()) {
-            Customer customer = optionalCustomer.get();
-            customer.setStatus(UserStatusEnum.DELETED);
-            customerRepository.save(customer);
-        } else {
-            throw new NotFoundException("Customer not found");
-        }
+        Customer customer = optionalCustomer.get();
+        customer.setStatus(UserStatusEnum.DELETED);
+        customerRepository.save(customer);
     }
 
     @Override
@@ -97,22 +96,13 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerResponseDto getCustomerById(Long id) {
         Optional<Customer> optionalCustomer = findById(id);
-        if (optionalCustomer.isPresent()) {
-            return CustomerMapper.MAPPER.entityToDto(optionalCustomer.get());
-        } else {
-            throw new NotFoundException("Customer not found");
-        }
+        return CustomerMapper.MAPPER.entityToDto(optionalCustomer.get());
     }
 
     @Override
     public CustomerResponseDto getCustomerByPhone(String phoneNumber) {
-        Optional<Customer> optionalCustomer =
-                customerRepository.findByPhoneNumberAndStatus(phoneNumber, UserStatusEnum.ACTIVE);
-        if (optionalCustomer.isPresent()) {
-            return CustomerMapper.MAPPER.entityToDto(optionalCustomer.get());
-        } else {
-            throw new NotFoundException("Customer not found");
-        }
+        Optional<Customer> optionalCustomer = findByPhone(phoneNumber);
+        return CustomerMapper.MAPPER.entityToDto(optionalCustomer.get());
     }
 
     @Override
@@ -141,7 +131,7 @@ public class CustomerServiceImpl implements CustomerService {
         if (optionalCustomer.isPresent()) {
             return optionalCustomer;
         }
-        throw new NotFoundException("Customer not found");
+        throw new ResourceNotFoundException("Customer not found");
     }
 
     private Optional<Customer> findById(Long id) {
@@ -150,6 +140,6 @@ public class CustomerServiceImpl implements CustomerService {
         if (optionalCustomer.isPresent()) {
             return optionalCustomer;
         }
-        throw new NotFoundException("Customer not found");
+        throw new ResourceNotFoundException("Customer not found");
     }
 }

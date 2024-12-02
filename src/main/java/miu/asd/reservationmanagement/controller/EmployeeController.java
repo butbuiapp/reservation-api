@@ -23,14 +23,14 @@ public class EmployeeController {
 
     @PostMapping
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> createEmployee(@Valid @RequestBody EmployeeRequestDto employeeRequestDto) {
+    public ResponseEntity<Map<String, String>> createEmployee(@Valid @RequestBody EmployeeRequestDto employeeRequestDto) {
         employeeService.saveEmployee(employeeRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "Employee created successfully"));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER', 'TECHNICIAN')")
-    public ResponseEntity<?> updateEmployee(@PathVariable Long id,
+    public ResponseEntity<Map<String, String>> updateEmployee(@PathVariable Long id,
                                             @Valid @RequestBody EmployeeRequestDto employeeRequestDto) {
         employeeService.updateEmployee(id, employeeRequestDto);
         return ResponseEntity.ok().body(Map.of("message", "Employee updated successfully"));
@@ -38,28 +38,28 @@ public class EmployeeController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('MANAGER', 'CUSTOMER')")
-    public ResponseEntity<?> getActiveEmployees() {
+    public ResponseEntity<List<EmployeeResponseDto>> getActiveEmployees() {
         List<EmployeeResponseDto> employees = employeeService.getActiveEmployees();
         return ResponseEntity.ok().body(employees);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER', 'TECHNICIAN')")
-    public ResponseEntity<?> getEmployeeById(@PathVariable Long id) {
+    public ResponseEntity<EmployeeResponseDto> getEmployeeById(@PathVariable Long id) {
         EmployeeResponseDto employeeResponseDto = employeeService.getEmployeeById(id);
         return ResponseEntity.ok().body(employeeResponseDto);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployeeById(id);
         return ResponseEntity.ok().body(Map.of("message", "Employee deleted successfully"));
     }
 
     @PutMapping("/change-password/{id}")
-    @PreAuthorize("hasRole('TECHNICIAN')")
-    public ResponseEntity<?> changePassword(
+    @PreAuthorize("hasAnyRole('MANAGER', 'TECHNICIAN')")
+    public ResponseEntity<Map<String, String>> changePassword(
             @PathVariable Long id,
             @Valid @RequestBody ChangePasswordRequestDto changePasswordRequestDto) {
         employeeService.changePassword(id, changePasswordRequestDto);
