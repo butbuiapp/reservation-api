@@ -78,6 +78,11 @@
   - Angular 17.3
   - Bootstrap, jwt-decode
 
+**CI/CD**
+ - GitHub Action for both Back-end and Front-end
+ - Back-end: Source code is automatically built
+ - Front-end: Source code is automatically built and deployed to Azure Static Web App
+
 ![image](https://github.com/user-attachments/assets/bb80ca5e-f048-4fc5-89ec-738b7785396e)
 
 **Front-end: Angular Components**
@@ -130,10 +135,11 @@ Container type: Docker Compose
 
 Registry source: Docker Hub
         
-And upload the Docker compose file prepared into Config textbox
+Upload the Docker compose file prepared into Config textbox
     
    ![image](https://github.com/user-attachments/assets/6edf87d8-c4a6-4840-ba39-3c2d6be0cb23)
 
+Click Save
 
 ## 7.2 Front-end
 
@@ -149,3 +155,11 @@ Then Azure will create a workflow file in the above repository. When there are a
 
 ![image](https://github.com/user-attachments/assets/074eea08-c400-4f1f-9679-b98f16b440cc)
 
+## 8. Links
+**Back-end and Front-end code**
+Back-end: https://github.com/butbuiapp/reservation-api
+Front-end: https://github.com/butbuiapp/nail-shop
+
+**Presentation Recodings**
+Project Introduction: https://mum0-my.sharepoint.com/:v:/r/personal/nbui_miu_edu/Documents/Recordings/Video%20recording-20241203_131953-Meeting%20Recording.mp4?csf=1&web=1&e=k0wQJl
+Project Demo: https://mum0-my.sharepoint.com/:v:/r/personal/nbui_miu_edu/Documents/Recordings/Video%20recording-20241203_135428-Meeting%20Recording.mp4?csf=1&web=1&e=wUTsYN
