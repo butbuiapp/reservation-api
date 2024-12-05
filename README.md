@@ -162,7 +162,7 @@ Back-end: https://github.com/butbuiapp/reservation-api
 
 Front-end: https://github.com/butbuiapp/nail-shop
 
-**Presentation Recodings**
+**Presentation Recordings**
 
 Project Introduction: https://mum0-my.sharepoint.com/:v:/r/personal/nbui_miu_edu/Documents/Recordings/Video%20recording-20241203_131953-Meeting%20Recording.mp4?csf=1&web=1&e=k0wQJl
 
